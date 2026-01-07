@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Ngân hàng câu hỏi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_teacher.html' %}
+
+        <h2>Quản lý ngân hàng câu hỏi</h2>
+
+        <div class="form-section">
+            <form action="/teacher/questions" method="POST">
+                <label>Nội dung câu hỏi:</label>
+                <textarea name="content" required placeholder="Nhập câu hỏi..."></textarea>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <input type="text" name="a" placeholder="Đáp án A" required>
+                    <input type="text" name="b" placeholder="Đáp án B" required>
+                    <input type="text" name="c" placeholder="Đáp án C" required>
+                    <input type="text" name="d" placeholder="Đáp án D" required>
+                </div>
+
+                <label>Đáp án đúng:</label>
+                <select name="ans">
+                    <option value="A">A</option><option value="B">B</option>
+                    <option value="C">C</option><option value="D">D</option>
+                </select>
+                <button type="submit" class="btn btn-p btn-block">Lưu câu hỏi mới</button>
+            </form>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Nội dung</th><th>Đáp án</th><th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for q in questions %}
+                <tr>
+                    <td>{{ q['content'] }}</td>
+                    <td><span class="badge">{{ q['ans'] }}</span></td>
+                    <td>
+                        <a href="{{ url_for('teacher.edit_question', id=q['id']) }}" class="btn btn-p" style="padding: 5px 10px; font-size: 12px;">Sửa</a>
+                        <a href="{{ url_for('teacher.delete_question', id=q['id']) }}" class="btn btn-d" style="padding: 5px 10px; font-size: 12px;" onclick="return confirm('Xóa?')">Xóa</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

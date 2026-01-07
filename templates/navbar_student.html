@@ -1,0 +1,7 @@
+<div class="nav-bar">
+    <a href="{{ url_for('student.list_exams') }}">Kỳ thi khả dụng</a>
+    <a href="{{ url_for('student.view_grades') }}">Lịch sử điểm cá nhân</a>
+    <a href="{{ url_for('auth.logout') }}" style="margin-left: auto; background-color: #e74c3c;">
+        Đăng xuất (HS: {{ session['fullname'] }})
+    </a>
+</div>

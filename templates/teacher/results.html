@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Bảng điểm tổng hợp</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_teacher.html' %}
+
+        <h2>Bảng điểm tổng hợp của tất cả học sinh</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ và tên</th>
+                    <th>Lớp</th>
+                    <th>Thời gian thi</th>
+                    <th>Điểm số</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td>{{ r['student_name'] }}</td>
+                    <td>{{ r['class_name'] }}</td>
+                    <td>{{ r['start_time'] }}</td>
+                    <td><strong style="color: var(--success)">{{ r['score'] }} / 10</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

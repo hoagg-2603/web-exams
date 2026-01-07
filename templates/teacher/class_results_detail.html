@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả thi: {{ selected_class['name'] }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_teacher.html' %}
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="{{ url_for('teacher.select_class_results') }}" class="btn btn-s" style="background-color: #95a5a6;">
+                ⬅ Quay lại danh sách lớp
+            </a>
+            <h2 style="margin: 0; color: var(--primary);">
+                Bảng điểm: <span style="color: var(--accent);">{{ selected_class['name'] }}</span>
+            </h2>
+        </div>
+
+        {% if results %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Họ và tên học sinh</th>
+                    <th>Thời gian thi</th>
+                    <th>Điểm số</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in results %}
+                <tr>
+                    <td style="font-weight: bold;">{{ r['student_name'] }}</td>
+                    <td>{{ r['start_time'] }}</td>
+                    <td>
+                        {% if r['score'] >= 5 %}
+                            <strong style="color: var(--success)">{{ r['score'] }} / 10</strong>
+                        {% else %}
+                            <strong style="color: var(--danger)">{{ r['score'] }} / 10</strong>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+            <div style="text-align: center; padding: 30px; color: #7f8c8d;">
+                <p>Chưa có học sinh nào trong lớp này nộp bài thi.</p>
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>

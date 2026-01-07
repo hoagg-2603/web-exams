@@ -1,0 +1,8 @@
+<div class="nav-bar">
+    <a href="{{ url_for('teacher.manage_classes') }}">Quản lý Lớp & Lịch thi</a>
+    <a href="{{ url_for('teacher.manage_questions') }}">Ngân hàng câu hỏi</a>
+    <a href="{{ url_for('teacher.select_class_results') }}">Kết quả thi tổng hợp</a>
+    <a href="{{ url_for('auth.logout') }}" style="margin-left: auto; background-color: #e74c3c;">
+        Đăng xuất (GV: {{ session['fullname'] }})
+    </a>
+</div>

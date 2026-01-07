@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chọn lớp xem kết quả</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .class-list-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            max-width: 600px;
+            margin: auto;
+        }
+        .class-select-btn {
+            text-align: left;
+            padding: 20px;
+            font-size: 1.2em;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .arrow-icon { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_teacher.html' %}
+
+        <h2 style="text-align: center; color: var(--primary); margin-bottom: 30px;">
+            Xem bảng điểm
+        </h2>
+
+        <div class="class-list-container">
+            {% if classes %}
+                {% for c in classes %}
+                <a href="{{ url_for('teacher.view_specific_class_results', class_id=c['id']) }}"
+                   class="btn btn-p class-select-btn">
+                    <span>{{ c['name'] }}</span>
+                    <span class="arrow-icon">➜</span>
+                </a>
+                {% endfor %}
+            {% else %}
+                <p style="text-align: center;">Chưa có lớp học nào được tạo.</p>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

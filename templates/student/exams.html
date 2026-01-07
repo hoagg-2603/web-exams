@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kỳ thi của tôi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_student.html' %}
+
+        <h2>Danh sách kỳ thi khả dụng</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Lớp học</th><th>Bắt đầu</th><th>Trạng thái</th><th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in exams %}
+                {% set start = datetime.strptime(e['start_time'], '%Y-%m-%d %H:%M') %}
+                {% set end = start + timedelta(minutes=e['duration']) %}
+                <tr>
+                    <td>{{ e['class_name'] }}</td>
+                    <td>{{ e['start_time'] }}</td>
+                    <td>
+                        {% if now < start %} 
+                            <span class="badge">Sắp diễn ra</span>
+                        {% elif now <= end %} 
+                            <span class="badge badge-ongoing">Đang diễn ra</span>
+                        {% else %} 
+                            <span class="badge badge-ended">Kết thúc</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {# 1. Kiểm tra nếu học sinh đã làm bài (taken_id tồn tại) #}
+                        {% if e['taken_id'] %}
+                            <span class="badge" style="background-color: var(--success); color: white;">Đã nộp bài</span>
+                        
+                        {# 2. Nếu chưa làm và đang trong thời gian thi #}
+                        {% elif now >= start and now <= end %}
+                            <a href="{{ url_for('student.take_exam', exam_id=e['id']) }}" class="btn btn-p">Vào thi</a>
+                        
+                        {# 3. Các trường hợp còn lại #}
+                        {% else %} 
+                            - 
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

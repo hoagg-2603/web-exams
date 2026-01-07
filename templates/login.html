@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container" style="max-width: 400px; margin-top: 100px;">
+        <h2 style="text-align: center; color: var(--a);">Hệ thống kiểm tra</h2>
+        <div class="form-section">
+            <form action="/login" method="POST">
+                <input type="text" name="username" placeholder="Tên đăng nhập" required>
+                <input type="password" name="password" placeholder="Mật khẩu" required>
+                <button type="submit" class="btn btn-p" style="width: 100%; margin-top: 10px;">Đăng nhập</button>
+            </form>
+        </div>
+        <p style="text-align: center;"><a href="/register">Chưa có tài khoản? Đăng ký tài khoản mới</a></p>
+    </div>
+</body>
+</html>

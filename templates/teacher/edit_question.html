@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chỉnh sửa câu hỏi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_teacher.html' %}
+
+        <h2>Chỉnh sửa câu hỏi ID: {{ q['id'] }}</h2>
+
+        <div class="form-section">
+            <form method="POST">
+                <label>Nội dung câu hỏi:</label>
+                <textarea name="content" rows="4" required>{{ q['content'] }}</textarea>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div>
+                        <label>Đáp án A:</label>
+                        <input type="text" name="a" value="{{ q['a'] }}" required>
+                    </div>
+                    <div>
+                        <label>Đáp án B:</label>
+                        <input type="text" name="b" value="{{ q['b'] }}" required>
+                    </div>
+                    <div>
+                        <label>Đáp án C:</label>
+                        <input type="text" name="c" value="{{ q['c'] }}" required>
+                    </div>
+                    <div>
+                        <label>Đáp án D:</label>
+                        <input type="text" name="d" value="{{ q['d'] }}" required>
+                    </div>
+                </div>
+
+                <label>Đáp án đúng hiện tại: <span class="badge">{{ q['ans'] }}</span></label>
+                <select name="ans">
+                    <option value="A" {% if q['ans'] == 'A' %}selected{% endif %}>Câu A</option>
+                    <option value="B" {% if q['ans'] == 'B' %}selected{% endif %}>Câu B</option>
+                    <option value="C" {% if q['ans'] == 'C' %}selected{% endif %}>Câu C</option>
+                    <option value="D" {% if q['ans'] == 'D' %}selected{% endif %}>Câu D</option>
+                </select>
+
+                <button type="submit" class="btn btn-p btn-block" style="margin-top: 20px;">Cập nhật câu hỏi</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

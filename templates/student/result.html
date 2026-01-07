@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Kết quả bài thi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_student.html' %}
+
+        <div style="text-align: center; padding: 40px 0;">
+            <h1 style="color: var(--accent);">Nộp bài thành công!</h1>
+            <div style="font-size: 1.5em; margin: 20px 0;">
+                <p>Số câu trả lời đúng: <strong>{{ correct }} / {{ total }}</strong></p>
+                <p>Điểm số của bạn:</p>
+                <div style="font-size: 4em; color: var(--success); font-weight: bold;">
+                    {{ score }}
+                </div>
+            </div>
+            <a href="/student/exams" class="btn btn-p">Làm bài thi khác</a>
+        </div>
+    </div>
+</body>
+</html>

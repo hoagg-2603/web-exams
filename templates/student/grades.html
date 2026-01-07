@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Lịch sử điểm số</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="container">
+        {% include 'navbar_student.html' %}
+
+        <h2>Lịch sử điểm thi cá nhân</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Lớp học</th><th>Thời gian thi</th><th>Điểm số</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in grades %}
+                <tr>
+                    <td>{{ g['class_name'] }}</td>
+                    <td>{{ g['start_time'] }}</td>
+                    <td><strong style="color: var(--success)">{{ g['score'] }} / 10</strong></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

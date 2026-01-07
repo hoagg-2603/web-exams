@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đang làm bài thi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Style cho đồng hồ đếm ngược */
+        .timer-bar {
+            position: sticky;
+            top: 0;
+            background: var(--primary);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            z-index: 1000;
+            border-bottom: 3px solid var(--accent); /* Nhấn bằng màu lam */
+            border-radius: 0 0 8px 8px;
+        }
+        #time-display { color: #ffeb3b; } /* Màu vàng nổi bật cho số giây */
+    </style>
+</head>
+<body>
+    <div class="timer-bar">
+        Thời gian còn lại: <span id="time-display">--:--</span>
+    </div>
+
+    <div class="container">
+        <h2 style="text-align:center; color: var(--primary);">Bài thi trực tuyến</h2>
+        
+        <form id="exam-form" action="/student/submit" method="POST">
+            <input type="hidden" name="exam_id" value="{{ exam['id'] }}">
+            
+            {% for q in questions %}
+            <div class="form-section">
+                <p><strong>Câu {{ loop.index }}: {{ q['content'] }}</strong></p>
+                <label><input type="radio" name="q_{{ q['id'] }}" value="A" required> A. {{ q['a'] }}</label><br>
+                <label><input type="radio" name="q_{{ q['id'] }}" value="B"> B. {{ q['b'] }}</label><br>
+                <label><input type="radio" name="q_{{ q['id'] }}" value="C"> C. {{ q['c'] }}</label><br>
+                <label><input type="radio" name="q_{{ q['id'] }}" value="D"> D. {{ q['d'] }}</label>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn btn-p btn-block" onclick="return confirm('Nộp bài?')">
+                Nộp bài thi ngay
+            </button>
+        </form>
+    </div>
+
+    <script>
+        // Lấy mốc thời gian kết thúc từ Backend gửi xuống
+        const endTime = new Date("{{ end_time }}").getTime();
+
+        const timerInterval = setInterval(function() {
+            const now = new Date().getTime();
+            const distance = endTime - now;
+
+            if (distance < 0) {
+                clearInterval(timerInterval);
+                document.getElementById("time-display").innerHTML = "HẾT GIỜ";
+                alert("Đã hết thời gian làm bài! Hệ thống sẽ tự động nộp bài.");
+                document.getElementById("exam-form").submit(); // Tự động nộp bài
+            } else {
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+                
+                // Hiển thị dạng MM:SS
+                document.getElementById("time-display").innerHTML = 
+                    (minutes < 10 ? "0" : "") + minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
