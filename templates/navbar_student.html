@@ -1,9 +1,7 @@
 <div class="nav-bar">
-    <a href="{{ url_for('teacher.manage_schedule') }}">Lập lịch thi</a>
-    <a href="{{ url_for('teacher.manage_questions') }}">Ngân hàng câu hỏi</a>
-    <a href="{{ url_for('teacher.manage_exam_names') }}">Danh mục kỳ thi</a>
-    <a href="{{ url_for('teacher.select_exam_results') }}">Kết quả thi</a>
+    <a href="{{ url_for('student.list_exams') }}">Kỳ thi khả dụng</a>
+    <a href="{{ url_for('student.view_grades') }}">Lịch sử điểm cá nhân</a>
     <a href="{{ url_for('auth.logout') }}" style="margin-left: auto; background-color: #e74c3c;">
-        Đăng xuất ({{ session['fullname'] }})
+        Đăng xuất (HS: {{ session['fullname'] }})
     </a>
 </div>

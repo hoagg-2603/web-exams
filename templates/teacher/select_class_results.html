@@ -33,15 +33,18 @@
 
         <div class="class-list-container">
             {% if classes %}
-                {% for e in exams %}
-                <a href="{{ url_for('teacher.view_specific_class_results', class_id=c['id']) }}"
+                {% for c in classes %}
+                <a href="{{ url_for('teacher.view_specific_class_results', exam_id=c['id']) }}"
                    class="btn btn-p class-select-btn">
-                    <span>{{ c['name'] }}</span>
+                    <span>
+                        {{ c['name'] }} 
+                        <small style="font-size: 0.8em; color: #eee;">({{ c['start_time'] }})</small>
+                    </span>
                     <span class="arrow-icon">➜</span>
                 </a>
                 {% endfor %}
             {% else %}
-                <p style="text-align: center;">Chưa có lớp học nào được tạo.</p>
+                <p style="text-align: center; color: #7f8c8d;">Chưa có kỳ thi nào được tạo.</p>
             {% endif %}
         </div>
     </div>

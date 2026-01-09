@@ -14,12 +14,19 @@
         <div class="form-section">
             <h3>Tạo lịch thi mới</h3>
             <form action="/teacher/schedule_exam" method="POST">
-                <label>Chọn tên kỳ thi (Lớp):</label>
-                <select name="name_id">
+                <label>Chọn tên kỳ thi:</label>
+                <select name="name_id" required>
                     {% for c in classes %} 
                         <option value="{{ c['id'] }}">{{ c['name'] }}</option> 
                     {% endfor %}
                 </select>
+                
+                <small style="display: block; margin-bottom: 15px; color: #666;">
+                    Chưa có tên kỳ thi trong danh sách? 
+                    <a href="{{ url_for('teacher.manage_exam_names') }}" style="color: var(--accent); font-weight: bold;">
+                        + Tạo tên kỳ thi mới
+                    </a>
+                </small>
 
                 <label>Ngày & Giờ thi:</label>
                 <div style="display: flex; gap: 10px;">

@@ -1,5 +1,7 @@
 <div class="nav-bar">
-    <a href="{{ url_for('teacher.manage_classes') }}">Quản lý Lớp & Lịch thi</a>
+    <a href="{{ url_for('teacher.manage_schedule') }}">Quản lý Lớp & Lịch thi</a>
+    <a href="{{ url_for('teacher.manage_exam_names') }}">Danh mục Tên Kỳ thi</a>
+    
     <a href="{{ url_for('teacher.manage_questions') }}">Ngân hàng câu hỏi</a>
     <a href="{{ url_for('teacher.select_class_results') }}">Kết quả thi tổng hợp</a>
     <a href="{{ url_for('auth.logout') }}" style="margin-left: auto; background-color: #e74c3c;">
