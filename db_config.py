@@ -1,28 +1,40 @@
 import sqlite3
+import os
+
+# Lấy đường dẫn thư mục hiện tại của file db_config.py
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+db_path = os.path.join(BASE_DIR, 'database.db')
 
 def get_db():
-    conn = sqlite3.connect('database.db', check_same_thread=False)
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
     db = get_db()
+    # Bảng người dùng
     db.execute('''CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE, password TEXT, fullname TEXT, role TEXT)''')
-    db.execute('CREATE TABLE IF NOT EXISTS classes (id INTEGER PRIMARY KEY, name TEXT)')
+
+    # Bảng danh mục Tên kỳ thi
+    db.execute('CREATE TABLE IF NOT EXISTS exam_names (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT)')
+
+    # Bảng câu hỏi
     db.execute('''CREATE TABLE IF NOT EXISTS questions (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT, 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT,
         a TEXT, b TEXT, c TEXT, d TEXT, ans TEXT)''')
-    # Thêm cột num_questions
+
+    # Bảng lịch thi
     db.execute('''CREATE TABLE IF NOT EXISTS exams (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, class_id INTEGER, 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, name_id INTEGER,
         start_time DATETIME, duration INTEGER, num_questions INTEGER DEFAULT 10,
-        FOREIGN KEY(class_id) REFERENCES classes(id))''')
+        FOREIGN KEY(name_id) REFERENCES exam_names(id))''')
+
+    # Bảng kết quả
     db.execute('''CREATE TABLE IF NOT EXISTS results (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER, 
-        exam_id INTEGER, score REAL, 
+        id INTEGER PRIMARY KEY AUTOINCREMENT, user_id INTEGER,
+        exam_id INTEGER, score REAL,
         FOREIGN KEY(user_id) REFERENCES users(id),
         FOREIGN KEY(exam_id) REFERENCES exams(id))''')
-    db.execute('INSERT OR IGNORE INTO classes (id, name) VALUES (1, "Lớp CNTT 01"), (2, "Lớp CNTT 02")')
     db.commit()

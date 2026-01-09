@@ -3,6 +3,7 @@ from db_config import get_db
 
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
 
+# --- 1. QUẢN LÝ CÂU HỎI ---
 @teacher_bp.route('/questions', methods=['GET', 'POST'])
 def manage_questions():
     db = get_db()
@@ -34,50 +35,78 @@ def delete_question(id):
     db.commit()
     return redirect(url_for('teacher.manage_questions'))
 
-@teacher_bp.route('/classes')
-def manage_classes():
+# --- 2. QUẢN LÝ DANH MỤC TÊN KỲ THI ---
+@teacher_bp.route('/exam-names', methods=['GET', 'POST'])
+def manage_exam_names():
     db = get_db()
-    classes = db.execute('SELECT * FROM classes').fetchall()
-    exams = db.execute('''SELECT exams.*, classes.name as class_name 
-                          FROM exams JOIN classes ON exams.class_id = classes.id''').fetchall()
-    return render_template('teacher/classes.html', classes=classes, exams=exams)
+    if request.method == 'POST':
+        name = request.form.get('name')
+        db.execute('INSERT INTO exam_names (name) VALUES (?)', (name,))
+        db.commit()
+    names = db.execute('SELECT * FROM exam_names').fetchall()
+    return render_template('teacher/exam_names.html', names=names)
+
+@teacher_bp.route('/exam-names/delete/<int:id>')
+def delete_exam_name(id):
+    db = get_db()
+    db.execute('DELETE FROM exam_names WHERE id = ?', (id,))
+    db.commit()
+    return redirect(url_for('teacher.manage_exam_names'))
+
+# --- 3. LẬP LỊCH THI (Fix BuildError tại đây) ---
+@teacher_bp.route('/schedule')
+def manage_schedule(): # Tên hàm phải là manage_schedule để khớp với app.py
+    db = get_db()
+    exam_names = db.execute('SELECT * FROM exam_names').fetchall()
+    exams = db.execute('''SELECT exams.*, exam_names.name as exam_display_name 
+                          FROM exams JOIN exam_names ON exams.name_id = exam_names.id''').fetchall()
+    return render_template('teacher/classes.html', exam_names=exam_names, exams=exams)
 
 @teacher_bp.route('/schedule_exam', methods=['POST'])
 def schedule_exam():
     db = get_db()
     dt = f"{request.form['date']} {request.form['time']}"
-    db.execute('INSERT INTO exams (class_id, start_time, duration, num_questions) VALUES (?, ?, ?, ?)',
-               (request.form['class_id'], dt, request.form['duration'], request.form['num_questions']))
+    db.execute('INSERT INTO exams (name_id, start_time, duration, num_questions) VALUES (?, ?, ?, ?)',
+               (request.form['name_id'], dt, request.form['duration'], request.form['num_questions']))
     db.commit()
-    return redirect(url_for('teacher.manage_classes'))
+    return redirect(url_for('teacher.manage_schedule'))
 
-# Bước 1: Chọn lớp muốn xem kết quả
+# --- 4. XEM KẾT QUẢ THI ---
 @teacher_bp.route('/results')
-def select_class_results():
+def select_exam_results():
     if 'user_id' not in session or session.get('role') != 'teacher':
          return redirect(url_for('auth.login'))
 
     db = get_db()
-    classes = db.execute('SELECT * FROM classes').fetchall()
-    return render_template('teacher/select_class_results.html', classes=classes)
+    # Hiển thị các kỳ thi thực tế đã được xếp lịch
+    scheduled_exams = db.execute('''
+        SELECT exams.id, exam_names.name, exams.start_time 
+        FROM exams 
+        JOIN exam_names ON exams.name_id = exam_names.id
+        ORDER BY exams.start_time DESC
+    ''').fetchall()
+    return render_template('teacher/select_class_results.html', exams=scheduled_exams)
 
-# Bước 2: Hiển thị kết quả chi tiết của lớp đã chọn
-@teacher_bp.route('/results/<int:class_id>')
-def view_specific_class_results(class_id):
+@teacher_bp.route('/results/<int:exam_id>')
+def view_exam_detail(exam_id):
     db = get_db()
-    selected_class = db.execute('SELECT * FROM classes WHERE id = ?', (class_id,)).fetchone()
-    if not selected_class:
-        return "Lớp không tồn tại!", 404
+    exam_info = db.execute('''
+        SELECT exams.id, exam_names.name, exams.start_time 
+        FROM exams 
+        JOIN exam_names ON exams.name_id = exam_names.id
+        WHERE exams.id = ?''', (exam_id,)).fetchone()
+    
+    if not exam_info:
+        return "Kỳ thi không tồn tại!", 404
 
     results = db.execute('''
-        SELECT results.score, users.fullname as student_name, exams.start_time
+        SELECT results.score, users.fullname as student_name
         FROM results
         JOIN users ON results.user_id = users.id
-        JOIN exams ON results.exam_id = exams.id
-        WHERE exams.class_id = ?
-        ORDER BY exams.start_time DESC, users.fullname ASC
-    ''', (class_id,)).fetchall()
+        WHERE results.exam_id = ?
+        ORDER BY users.fullname ASC
+    ''', (exam_id,)).fetchall()
 
     return render_template('teacher/class_results_detail.html',
                            results=results,
-                           selected_class=selected_class)
+                           exam=exam_info)

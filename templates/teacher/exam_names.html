@@ -1,0 +1,23 @@
+<div class="container">
+    <h2>Quản lý danh mục Tên kỳ thi - d97pb</h2>
+    <form method="POST" class="form-section">
+        <label>Thêm tên kỳ thi mới:</label>
+        <input type="text" name="name" placeholder="VD: Giải thuật A - Kỳ 1" required>
+        <button type="submit" class="btn btn-p">Lưu vào danh mục</button>
+    </form>
+
+    <table>
+        <thead>
+            <tr><th>ID</th><th>Tên kỳ thi</th><th>Thao tác</th></tr>
+        </thead>
+        <tbody>
+            {% for n in names %}
+            <tr>
+                <td>{{ n['id'] }}</td>
+                <td>{{ n['name'] }}</td>
+                <td><a href="#" class="btn btn-d">Xóa</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
