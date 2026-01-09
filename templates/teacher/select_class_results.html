@@ -33,7 +33,7 @@
 
         <div class="class-list-container">
             {% if classes %}
-                {% for c in classes %}
+                {% for e in exams %}
                 <a href="{{ url_for('teacher.view_specific_class_results', class_id=c['id']) }}"
                    class="btn btn-p class-select-btn">
                     <span>{{ c['name'] }}</span>

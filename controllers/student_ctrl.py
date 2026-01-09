@@ -10,12 +10,12 @@ def list_exams():
     db = get_db()
     user_id = session['user_id']
     
-    # Lấy danh sách thi và kiểm tra xem học sinh đã có kết quả chưa
+    # Đã sửa: Join với exam_names thay vì classes
     exams = db.execute('''
-        SELECT exams.*, classes.name as class_name,
+        SELECT exams.*, exam_names.name as exam_display_name,
                (SELECT id FROM results WHERE exam_id = exams.id AND user_id = ?) as taken_id
         FROM exams 
-        JOIN classes ON exams.class_id = classes.id
+        JOIN exam_names ON exams.name_id = exam_names.id
     ''', (user_id,)).fetchall()
     
     return render_template('student/exams.html', 
@@ -30,22 +30,18 @@ def take_exam(exam_id):
     db = get_db()
     user_id = session['user_id']
     
-    # 1. Chặn nếu học sinh đã làm bài thi này rồi
     check = db.execute('SELECT id FROM results WHERE exam_id = ? AND user_id = ?', 
                        (exam_id, user_id)).fetchone()
     if check:
         return redirect(url_for('student.list_exams'))
 
-    # 2. Lấy thông tin kỳ thi
     exam = db.execute('SELECT * FROM exams WHERE id = ?', (exam_id,)).fetchone()
     
-    # 3. Tính toán thời gian kết thúc để phục vụ đồng hồ đếm ngược
     start_dt = datetime.strptime(exam['start_time'], '%Y-%m-%d %H:%M')
     end_dt = start_dt + timedelta(minutes=exam['duration'])
     end_time_iso = end_dt.strftime('%Y-%m-%dT%H:%M:%S')
 
-    # 4. Lấy ngẫu nhiên câu hỏi theo số lượng đã định
-    num = exam['num_questions'] if 'num_questions' in exam.keys() else 10
+    num = exam['num_questions'] if exam['num_questions'] else 10
     questions = db.execute('SELECT * FROM questions ORDER BY RANDOM() LIMIT ?', (num,)).fetchall()
     
     return render_template('student/do_exam.html', 
@@ -60,13 +56,11 @@ def submit():
     user_id = session['user_id']
     exam_id = request.form.get('exam_id')
     
-    # Chặn nộp bài lần 2
     check = db.execute('SELECT id FROM results WHERE exam_id = ? AND user_id = ?', 
                        (exam_id, user_id)).fetchone()
     if check:
         return redirect(url_for('student.view_grades'))
 
-    # Logic tính điểm
     q_ids = [k.split('_')[1] for k in request.form.keys() if k.startswith('q_')]
     correct = 0
     for q_id in q_ids:
@@ -77,7 +71,6 @@ def submit():
     total = len(q_ids)
     score = round((correct / total) * 10, 2) if total > 0 else 0
     
-    # Lưu kết quả
     db.execute('INSERT INTO results (user_id, exam_id, score) VALUES (?, ?, ?)',
                (user_id, exam_id, score))
     db.commit()
@@ -87,11 +80,12 @@ def submit():
 def view_grades():
     if 'user_id' not in session: return redirect(url_for('auth.login'))
     db = get_db()
+    # Đã sửa: Join đúng bảng exam_names
     grades = db.execute('''
-        SELECT results.score, exams.start_time, classes.name as class_name
+        SELECT results.score, exams.start_time, exam_names.name as exam_display_name
         FROM results
         JOIN exams ON results.exam_id = exams.id
-        JOIN classes ON exams.class_id = classes.id
+        JOIN exam_names ON exams.name_id = exam_names.id
         WHERE results.user_id = ? 
         ORDER BY exams.start_time DESC
     ''', (session['user_id'],)).fetchall()

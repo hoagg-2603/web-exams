@@ -14,8 +14,8 @@
         <div class="form-section">
             <h3>Tạo lịch thi mới</h3>
             <form action="/teacher/schedule_exam" method="POST">
-                <label>Chọn lớp:</label>
-                <select name="class_id">
+                <label>Chọn tên kỳ thi (Lớp):</label>
+                <select name="name_id">
                     {% for c in classes %} 
                         <option value="{{ c['id'] }}">{{ c['name'] }}</option> 
                     {% endfor %}
@@ -41,7 +41,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Lớp học</th>
+                    <th>Tên kỳ thi</th>
                     <th>Thời điểm bắt đầu</th>
                     <th>Thời lượng</th>
                     <th>Số câu hỏi</th>
@@ -51,7 +51,7 @@
                 {% if exams %}
                     {% for e in exams %}
                     <tr>
-                        <td style="font-weight: bold; color: var(--primary);">{{ e['class_name'] }}</td>
+                        <td style="font-weight: bold; color: var(--primary);">{{ e['exam_display_name'] }}</td>
                         <td>{{ e['start_time'] }}</td>
                         <td>{{ e['duration'] }} phút</td>
                         <td><span class="badge">{{ e['num_questions'] }} câu</span></td>

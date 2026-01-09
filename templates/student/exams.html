@@ -13,7 +13,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Lớp học</th><th>Bắt đầu</th><th>Trạng thái</th><th>Hành động</th>
+                    <th>Kỳ thi / Lớp</th><th>Bắt đầu</th><th>Trạng thái</th><th>Hành động</th>
                 </tr>
             </thead>
             <tbody>
@@ -21,7 +21,7 @@
                 {% set start = datetime.strptime(e['start_time'], '%Y-%m-%d %H:%M') %}
                 {% set end = start + timedelta(minutes=e['duration']) %}
                 <tr>
-                    <td>{{ e['class_name'] }}</td>
+                    <td>{{ e['exam_display_name'] }}</td>
                     <td>{{ e['start_time'] }}</td>
                     <td>
                         {% if now < start %} 
@@ -33,15 +33,10 @@
                         {% endif %}
                     </td>
                     <td>
-                        {# 1. Kiểm tra nếu học sinh đã làm bài (taken_id tồn tại) #}
                         {% if e['taken_id'] %}
                             <span class="badge" style="background-color: var(--success); color: white;">Đã nộp bài</span>
-                        
-                        {# 2. Nếu chưa làm và đang trong thời gian thi #}
                         {% elif now >= start and now <= end %}
                             <a href="{{ url_for('student.take_exam', exam_id=e['id']) }}" class="btn btn-p">Vào thi</a>
-                        
-                        {# 3. Các trường hợp còn lại #}
                         {% else %} 
                             - 
                         {% endif %}

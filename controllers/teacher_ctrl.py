@@ -3,7 +3,6 @@ from db_config import get_db
 
 teacher_bp = Blueprint('teacher', __name__, url_prefix='/teacher')
 
-# --- 1. QUẢN LÝ CÂU HỎI ---
 @teacher_bp.route('/questions', methods=['GET', 'POST'])
 def manage_questions():
     db = get_db()
@@ -35,7 +34,6 @@ def delete_question(id):
     db.commit()
     return redirect(url_for('teacher.manage_questions'))
 
-# --- 2. QUẢN LÝ DANH MỤC TÊN KỲ THI ---
 @teacher_bp.route('/exam-names', methods=['GET', 'POST'])
 def manage_exam_names():
     db = get_db()
@@ -46,49 +44,43 @@ def manage_exam_names():
     names = db.execute('SELECT * FROM exam_names').fetchall()
     return render_template('teacher/exam_names.html', names=names)
 
-@teacher_bp.route('/exam-names/delete/<int:id>')
-def delete_exam_name(id):
-    db = get_db()
-    db.execute('DELETE FROM exam_names WHERE id = ?', (id,))
-    db.commit()
-    return redirect(url_for('teacher.manage_exam_names'))
-
-# --- 3. LẬP LỊCH THI (Fix BuildError tại đây) ---
 @teacher_bp.route('/schedule')
-def manage_schedule(): # Tên hàm phải là manage_schedule để khớp với app.py
+def manage_schedule():
     db = get_db()
     exam_names = db.execute('SELECT * FROM exam_names').fetchall()
     exams = db.execute('''SELECT exams.*, exam_names.name as exam_display_name 
                           FROM exams JOIN exam_names ON exams.name_id = exam_names.id''').fetchall()
-    return render_template('teacher/classes.html', exam_names=exam_names, exams=exams)
+    # Đã sửa: Truyền exam_names vào biến 'classes' để Template classes.html đọc được
+    return render_template('teacher/classes.html', classes=exam_names, exams=exams)
 
 @teacher_bp.route('/schedule_exam', methods=['POST'])
 def schedule_exam():
     db = get_db()
     dt = f"{request.form['date']} {request.form['time']}"
+    # Đã sửa: Lấy 'name_id' thay vì 'class_id' từ form
     db.execute('INSERT INTO exams (name_id, start_time, duration, num_questions) VALUES (?, ?, ?, ?)',
                (request.form['name_id'], dt, request.form['duration'], request.form['num_questions']))
     db.commit()
     return redirect(url_for('teacher.manage_schedule'))
 
-# --- 4. XEM KẾT QUẢ THI ---
+# Đã sửa: Đổi tên hàm thành select_class_results để khớp với navbar
 @teacher_bp.route('/results')
-def select_exam_results():
+def select_class_results():
     if 'user_id' not in session or session.get('role') != 'teacher':
          return redirect(url_for('auth.login'))
-
     db = get_db()
-    # Hiển thị các kỳ thi thực tế đã được xếp lịch
     scheduled_exams = db.execute('''
         SELECT exams.id, exam_names.name, exams.start_time 
         FROM exams 
         JOIN exam_names ON exams.name_id = exam_names.id
         ORDER BY exams.start_time DESC
     ''').fetchall()
-    return render_template('teacher/select_class_results.html', exams=scheduled_exams)
+    # Đã sửa: Truyền vào biến 'classes' để khớp Template
+    return render_template('teacher/select_class_results.html', classes=scheduled_exams)
 
+# Đã sửa: Đổi tên hàm thành view_specific_class_results để khớp Template select_class_results.html
 @teacher_bp.route('/results/<int:exam_id>')
-def view_exam_detail(exam_id):
+def view_specific_class_results(exam_id):
     db = get_db()
     exam_info = db.execute('''
         SELECT exams.id, exam_names.name, exams.start_time 
@@ -96,17 +88,17 @@ def view_exam_detail(exam_id):
         JOIN exam_names ON exams.name_id = exam_names.id
         WHERE exams.id = ?''', (exam_id,)).fetchone()
     
-    if not exam_info:
-        return "Kỳ thi không tồn tại!", 404
+    if not exam_info: return "Kỳ thi không tồn tại!", 404
 
     results = db.execute('''
-        SELECT results.score, users.fullname as student_name
+        SELECT results.score, users.fullname as student_name, exams.start_time
         FROM results
         JOIN users ON results.user_id = users.id
+        JOIN exams ON results.exam_id = exams.id
         WHERE results.exam_id = ?
         ORDER BY users.fullname ASC
     ''', (exam_id,)).fetchall()
 
     return render_template('teacher/class_results_detail.html',
                            results=results,
-                           exam=exam_info)
+                           selected_class=exam_info) # Đã sửa tên biến truyền đi

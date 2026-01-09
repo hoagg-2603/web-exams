@@ -1,5 +1,6 @@
 <div class="container">
-    <h2>Quản lý danh mục Tên kỳ thi - d97pb</h2>
+    {% include 'navbar_teacher.html' %}
+    <h2>Quản lý danh mục Tên kỳ thi</h2>
     <form method="POST" class="form-section">
         <label>Thêm tên kỳ thi mới:</label>
         <input type="text" name="name" placeholder="VD: Giải thuật A - Kỳ 1" required>
@@ -15,7 +16,10 @@
             <tr>
                 <td>{{ n['id'] }}</td>
                 <td>{{ n['name'] }}</td>
-                <td><a href="#" class="btn btn-d">Xóa</a></td>
+                <td>
+                    <a href="{{ url_for('teacher.delete_exam_name', id=n['id']) }}" 
+                       class="btn btn-d" onclick="return confirm('Xóa danh mục này?')">Xóa</a>
+                </td>
             </tr>
             {% endfor %}
         </tbody>
